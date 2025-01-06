@@ -26,17 +26,27 @@ class LoginViewModel extends ChangeNotifier {
   }
 
   /// 로그인 로직
-  Future<void> login() async {
+  Future<bool> login() async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
-    final success = await _authService.login(_email, _password);
-    _isLoading = false;
-
-    if (!success) {
-      _errorMessage = 'Invalid email or password.';
+    try {
+      final success = await _authService.login(_email, _password);
+      if (success) {
+        _isLoading = false;
+        notifyListeners();
+        return true; // 로그인 성공
+      } else {
+        _errorMessage = 'Invalid email or password.';
+      }
+    } catch (e) {
+      _errorMessage = 'An error occurred: $e';
     }
+
+    _isLoading = false;
     notifyListeners();
+    return false; // 로그인 실패
   }
+
 }

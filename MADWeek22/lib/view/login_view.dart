@@ -69,11 +69,7 @@ class LoginView extends StatelessWidget {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignupView()),
-                            );
-
+                            Navigator.pushReplacementNamed(context, '/signup');
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey.shade300,
@@ -85,15 +81,27 @@ class LoginView extends StatelessWidget {
                           onPressed: viewModel.isLoading
                               ? null
                               : () async {
-                            await viewModel.login();
-                            if (viewModel.errorMessage.isEmpty) {
+                            final success = await viewModel.login();
+                            if (success) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Login Successful!'),
                                 ),
                               );
+                              // 로그인 성공 시 HomeView로 이동
+                              Navigator.pushReplacementNamed(context, '/home');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(viewModel.errorMessage),
+                                ),
+                              );
                             }
                           },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black, // 버튼 배경색 검정
+                            foregroundColor: Colors.white, // 버튼 텍스트 색상 흰색
+                          ),
                           child: viewModel.isLoading
                               ? const CircularProgressIndicator(
                             color: Colors.white,

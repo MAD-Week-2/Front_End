@@ -81,6 +81,10 @@ class SignupView extends StatelessWidget {
                           );
                         }
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black, // 버튼 배경색 검정
+                        foregroundColor: Colors.white, // 텍스트 색 흰색
+                      ),
                       child: viewModel.isLoading
                           ? const CircularProgressIndicator(
                         color: Colors.white,
