@@ -161,13 +161,13 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<List<Map<String, dynamic>>> _getSearchResults(String searchQuery) async {
-    final String apiKey = 'AIzaSyAMkC533AyMa-d5t2h49emQIeR_XQ49Vso'; // Google Places API 키
+    final String apiKey = 'AIzaSyA'; // Google Places API 키
     final String url = 'https://places.googleapis.com/v1/places:searchText?fields=formatted_address,geometry&key=$apiKey';
     // final response = await http.get(Uri.parse(url));
     final response = await http.post(Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ya29.a0ARW5m75sY6H-8R7EdJB-een1RVT0F12Z1tJtfDpmQocf33h2zeQr_5w-9meFz2m03hzhVaWoHX_c_u-8G-2FL87UopqMrfWtNqszzr6LCMz12bmkmPoJG_2f47vZOcQSsi3ZwsqiHATFPiMzwiGuTfUIrcOp9kJyG5_kNL2VaCgYKAfISARISFQHGX2MiDfndisFIRAYRuioLzOnX6Q0175',
+        'Authorization': 'Bearer -_5w-9meFz2m03hzhVaWoHX_c_u-8G-2FL87UopqMrfWtNqszzr6LCMz12bmkmPoJG_2f47vZOcQSsi3ZwsqiHATFPiMzwiGuTfUIrcOp9kJyG5_kNL2VaCgYKAfISARISFQHGX2MiDfndisFIRAYRuioLzOnX6Q0175',
       },
       body: jsonEncode({
         'textQuery': searchQuery,
