@@ -27,18 +27,12 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
-    final viewModel = Provider.of<MapViewModel>(context, listen: false);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 초기 지도 범위에서 데이터 로드
-      _fetchStations(viewModel);
-    });
   }
 
   void _fetchStations(MapViewModel viewModel) {
     if (_mapController != null) {
-      _mapController!.getVisibleRegion().then((bounds) {
-        viewModel.fetchStationsInBounds(
+      _mapController!.getVisibleRegion().then((bounds) async {
+        await viewModel.fetchStationsInBounds(
           southWestLat: bounds.southwest.latitude,
           southWestLng: bounds.southwest.longitude,
           northEastLat: bounds.northeast.latitude,
@@ -48,6 +42,7 @@ class _MapViewState extends State<MapView> {
       });
     }
   }
+
   void _updateMarkers(List<StationModel> stations) async {
     Set<Marker> newMarkers = {};
 
@@ -67,31 +62,25 @@ class _MapViewState extends State<MapView> {
       );
     }
 
-    setState(() {
-      _markers = newMarkers;
-    });
+    if (mounted) {
+      setState(() {
+        _markers = newMarkers;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<MapViewModel>(context);
-    if (!viewModel.isLoading) {
-      _markers = viewModel.stations.map((station) {
-        return Marker(
-          markerId: MarkerId(station.id),
-          position: LatLng(station.latitude, station.longitude),
-          infoWindow: InfoWindow(
-            title: 'Available Bikes: ${station.availableBikes}',
-          ),
-        );
-      }).toSet();
-    }
 
     return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: (controller) => _mapController = controller,
+            onMapCreated: (controller) {
+              _mapController = controller;
+              _fetchStations(viewModel); // 맵 생성 후 데이터 로드
+            },
             initialCameraPosition: CameraPosition(
               target: _initialPosition,
               zoom: 16.0,
@@ -206,9 +195,7 @@ class _MapViewState extends State<MapView> {
     }
 
     try {
-      // 1. Google Places API로 목적지 좌표 검색
       final destinationLatLng = await _getLatLngFromPlaceName(destination);
-      // 2. Tmap API로 도보 경로 검색
       final routeData = await _getWalkingRoute(_initialPosition, destinationLatLng);
 
       setState(() {
@@ -227,7 +214,6 @@ class _MapViewState extends State<MapView> {
         };
       });
 
-      // 지도를 경로 중심으로 이동
       _mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(_getBounds(_polylineCoordinates), 50),
       );
@@ -239,7 +225,7 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<LatLng> _getLatLngFromPlaceName(String placeName) async {
-    final String apiKey = dotenv.env['GOOGLEMAPS_API_KEY'] ?? '';
+    final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
     final String url =
         'https://maps.googleapis.com/maps/api/place/textsearch/json?query=${Uri.encodeComponent(placeName)}&key=$apiKey';
 
@@ -260,7 +246,7 @@ class _MapViewState extends State<MapView> {
 
   Future<Map<String, dynamic>> _getWalkingRoute(LatLng origin, LatLng destination) async {
     const String tmapUrl = 'https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1';
-    final String tmapApiKey = dotenv.env['TMAP_API_KEY'] ?? '';
+    final String tmapApiKey = dotenv.env['TMAP_API_KEY']!;
 
     final headers = {
       'Accept': 'application/json',

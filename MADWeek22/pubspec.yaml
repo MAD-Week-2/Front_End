@@ -49,11 +49,6 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   web_socket_channel: ^2.1.0
   shared_preferences: ^2.1.1
-  qr_code_scanner: ^1.0.1
-  camera: ^0.10.0+4
-  image_picker: ^1.1.2
-  mqtt_client: ^9.6.0
-  audioplayers: ^6.1.0
   geolocator: ^13.0.2
   google_maps_flutter: ^2.10.0
   location: ^7.0.1

@@ -4,11 +4,13 @@ import 'package:madweek22/view/appointment_page.dart';
 import 'package:madweek22/view/home_view.dart';
 import 'package:madweek22/view/login_view.dart';
 import 'package:madweek22/view/splash_view.dart';
+import 'package:madweek22/view/map_view.dart';
 import 'package:madweek22/viewModel/appointment_view_model.dart';
 import 'package:madweek22/viewModel/home_view_model.dart';
 import 'package:madweek22/viewModel/login_view_model.dart';
 import 'package:madweek22/viewModel/station_view_model.dart';
 import 'package:madweek22/viewModel/user_view_model.dart';
+import 'package:madweek22/viewModel/map_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:madweek22/view/signup_view.dart';
 import 'package:madweek22/viewModel/signup_view_model.dart';
@@ -31,8 +33,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => StationViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => AppointmentViewModel()),
-
-
+        ChangeNotifierProvider(create: (_) => MapViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -42,9 +43,7 @@ class MyApp extends StatelessWidget {
           'login' : (context) => LoginView(),
           '/signup': (context) => SignupView(),
           '/home' : (context) => HomeView(),
-          'appointment' : (context) => AppointmentPage(),
-
-
+          '/appointment' : (context) => AppointmentPage(),
         },
       ),
     );
