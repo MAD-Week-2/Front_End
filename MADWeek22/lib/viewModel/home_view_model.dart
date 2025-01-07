@@ -40,12 +40,10 @@ class HomeViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final nearbyStation = data['nearby_stations'][0];
+        print('Nearby Station Data: $nearbyStation');
 
-        _bikeInfo = HomeModel(
-          availableBikes: nearbyStation['available_bikes'],
-          totalBikes: nearbyStation['total_bikes'], // 총 자전거 수 추가
-          location: nearbyStation['station_name'],
-        );
+        _bikeInfo = HomeModel.fromJson(nearbyStation);
+        print('Updated Bike Info: $_bikeInfo');
       } else {
         throw Exception('Failed to load nearby stations: ${response.body}');
       }
@@ -56,6 +54,7 @@ class HomeViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
 
   Future<void> fetchLateCount() async {
     _isLateCountLoading = true;
