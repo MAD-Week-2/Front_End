@@ -1,19 +1,22 @@
 class StationModel {
-  final String stationName;
+  final String id;
+  final double latitude;
+  final double longitude;
   final int availableBikes;
-  final int capacity;
 
   StationModel({
-    required this.stationName,
+    required this.id,
+    required this.latitude,
+    required this.longitude,
     required this.availableBikes,
-    required this.capacity,
   });
 
   factory StationModel.fromJson(Map<String, dynamic> json) {
     return StationModel(
-      stationName: json['station_name'],
+      id: json['id'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
       availableBikes: json['available_bikes'],
-      capacity: json['capacity'],
     );
   }
 }
