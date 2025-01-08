@@ -37,7 +37,7 @@ class LoginView extends StatelessWidget {
                     // 이메일 입력 필드
                     TextField(
                       decoration: const InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Name',
                         border: OutlineInputBorder(),
                       ),
                       onChanged: viewModel.setEmail,

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view/appointment_page.dart';
+import '../view/map_view.dart';
 import '../viewModel/home_view_model.dart';
 
 class HomeView extends StatefulWidget {
@@ -109,8 +110,15 @@ class _HomeViewState extends State<HomeView> {
                       border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Center(
-                      child: Icon(Icons.map, size: 100, color: Colors.blue),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => MapView()),
+                        );
+                      },
+                      child: Center(
+                        child: Icon(Icons.map, size: 100, color: Colors.blue),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
