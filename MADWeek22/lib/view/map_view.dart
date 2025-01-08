@@ -27,46 +27,39 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = Provider.of<MapViewModel>(context, listen: false);
+      viewModel.fetchAllStations(); // 더미 데이터 로드
+    });
   }
 
   void _fetchStations(MapViewModel viewModel) {
     if (_mapController != null) {
-      _mapController!.getVisibleRegion().then((bounds) async {
-        await viewModel.fetchStationsInBounds(
-          southWestLat: bounds.southwest.latitude,
-          southWestLng: bounds.southwest.longitude,
-          northEastLat: bounds.northeast.latitude,
-          northEastLng: bounds.northeast.longitude,
-        );
-        _updateMarkers(viewModel.stations);
+      _mapController!.getVisibleRegion().then((bounds) {
+        viewModel.filterStationsByBounds(bounds);
+        _updateMarkers(viewModel.visibleStations);
+        print('${viewModel.visibleStations}');
       });
     }
   }
 
   void _updateMarkers(List<StationModel> stations) async {
     Set<Marker> newMarkers = {};
-
     for (var station in stations) {
-      final customMarker = await createCustomMarkerBitmap(
-          station.availableBikes.toString());
-
+      final BitmapDescriptor customMarker =
+      await createCustomMarkerBitmap(station.availableBikes.toString());
       newMarkers.add(
         Marker(
           markerId: MarkerId(station.id),
           position: LatLng(station.latitude, station.longitude),
-          icon: customMarker, // 커스텀 마커 설정
-          infoWindow: InfoWindow(
-            title: 'Available Bikes: ${station.availableBikes}',
-          ),
+          icon: customMarker,
+          infoWindow: InfoWindow(title: 'Available Bikes: ${station.availableBikes}'),
         ),
       );
     }
-
-    if (mounted) {
-      setState(() {
-        _markers = newMarkers;
-      });
-    }
+    setState(() {
+      _markers = newMarkers;
+    });
   }
 
   @override
@@ -79,12 +72,17 @@ class _MapViewState extends State<MapView> {
           GoogleMap(
             onMapCreated: (controller) {
               _mapController = controller;
-              _fetchStations(viewModel); // 맵 생성 후 데이터 로드
+              _fetchStations(viewModel); // 맵 생성 후 스테이션 데이터 로드
             },
             initialCameraPosition: CameraPosition(
               target: _initialPosition,
               zoom: 16.0,
             ),
+            onCameraIdle: () {
+              if (_mapController != null) {
+                _fetchStations(viewModel);
+              }
+            },
             markers: _markers,
             polylines: _routePolyline != null ? {_routePolyline!} : {},
             zoomControlsEnabled: true,
@@ -153,7 +151,7 @@ class _MapViewState extends State<MapView> {
     final Canvas canvas = Canvas(recorder);
     final Paint paint = Paint()..color = Colors.blue;
 
-    const double size = 80; // 마커 크기
+    const double size = 90; // 마커 크기
     canvas.drawCircle(
       Offset(size / 2, size / 2),
       size / 2,
@@ -193,13 +191,16 @@ class _MapViewState extends State<MapView> {
       );
       return;
     }
-
+    print('$destination');
     try {
       final destinationLatLng = await _getLatLngFromPlaceName(destination);
+      print('Destination coordinates: $destinationLatLng');
       final routeData = await _getWalkingRoute(_initialPosition, destinationLatLng);
+      print('Route data: $routeData');
 
       setState(() {
         _polylineCoordinates = routeData['polyline'];
+        print('polylinecoords: $_polylineCoordinates');
         _totalDistance = routeData['distance'];
         _routePolyline = Polyline(
           polylineId: PolylineId('route'),
@@ -208,10 +209,8 @@ class _MapViewState extends State<MapView> {
           width: 5,
         );
 
-        _markers = {
-          Marker(markerId: MarkerId('start'), position: _initialPosition),
-          Marker(markerId: MarkerId('end'), position: destinationLatLng),
-        };
+        _markers.add(Marker(markerId: MarkerId('start'), position: _initialPosition));
+        _markers.add(Marker(markerId: MarkerId('end'), position: destinationLatLng));
       });
 
       _mapController?.animateCamera(
@@ -230,6 +229,7 @@ class _MapViewState extends State<MapView> {
         'https://maps.googleapis.com/maps/api/place/textsearch/json?query=${Uri.encodeComponent(placeName)}&key=$apiKey';
 
     final response = await http.get(Uri.parse(url));
+    print('text search ${response.body}');
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -266,6 +266,7 @@ class _MapViewState extends State<MapView> {
     });
 
     final response = await http.post(Uri.parse(tmapUrl), headers: headers, body: body);
+    print('tmap walk route ${response.body}');
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

@@ -33,7 +33,7 @@ class SignupView extends StatelessWidget {
                   children: [
                     TextField(
                       decoration: const InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Name',
                         border: OutlineInputBorder(),
                       ),
                       onChanged: viewModel.setEmail,
